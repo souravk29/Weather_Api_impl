@@ -21,7 +21,7 @@ struct Weather {
 // Struct to represent the main weather parameters
 #[derive(Deserialize, Debug)]
 struct Main {
-    temperature: f64,
+    temp: f64,
     humidity: f64,
     pressure: f64,
 }
@@ -55,7 +55,7 @@ fn get_weather_info(
 fn display_weather_info(response: &WeatherResponse) {
     // Extract
     let description: &String = &response.weather[0].description;
-    let temperature: f64 = response.main.temperature;
+    let temp: f64 = response.main.temp;
     let humidity: f64 = response.main.humidity;
     let pressure: f64 = response.main.pressure;
     let speed: f64 = response.wind.speed;
@@ -64,15 +64,15 @@ fn display_weather_info(response: &WeatherResponse) {
 
     let weather_text = format!(
         "weather in {}: {} {}
-        > temperature : {:.1}°C,
+        > temp : {:.1}°C,
         > humidity : {:.1}%,
         > pressure : {:.1}hPa,
         > speed: {:.1}m/s",
         response.name,
         description,
         // function to get temperature emoji
-        get_temp_emoji(temperature),
-        temperature,
+        get_temp_emoji(temp),
+        temp,
         humidity,
         pressure,
         speed,
@@ -94,14 +94,14 @@ fn display_weather_info(response: &WeatherResponse) {
 
 // Function to get emoji based on the temperature
 
-fn get_temp_emoji(temperature: f64) -> &'static str {
-    if temperature <= 0.0 {
+fn get_temp_emoji(temp: f64) -> &'static str {
+    if temp <= 0.0 {
         "❄️ "
-    } else if temperature > 0.0 && temperature <= 10.0 {
+    } else if temp > 0.0 && temp <= 10.0 {
         "🌪️"
-    } else if temperature > 10.0 && temperature <= 20.0 {
+    } else if temp > 10.0 && temp <= 20.0 {
         "🌩️"
-    } else if temperature > 20.0 && temperature <= 30.0 {
+    } else if temp > 20.0 && temp <= 30.0 {
         "⛅"
     } else {
         "🔥"
