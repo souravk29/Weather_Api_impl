@@ -1,4 +1,5 @@
 use colored::*;
+use reqwest::Response;
 use serde::Deserialize;
 use std::io;
 
@@ -8,7 +9,7 @@ use std::io;
 struct WeatherResponse {
     weather: Vec<Weather>,
     main: Main,
-    wind: Wind,
+    wind: Wind,                                                   
     name: String,
 }
 
@@ -31,15 +32,88 @@ struct Wind {
     speed: f64,
 }
 
-fn get_weather_info(
-    city: &str,
-    country_code: &str,
-    api_key: &str,
-) -> Result<WeatherResponse, reqwest::Error> {
+// function to get the weather info from the openWeatherMap Api
+
+fn get_weather_info(  city: &str, country_code: &str, api_key: &str,) -> Result<WeatherResponse, reqwest::Error> {
+
     let url: String = format!(
-        "https://api.openweathermap.org/data/3.0/onecall?q={},{}&units=metrics&appid={}",
+        "https://api.openweathermap.org/data/2.5/weather?q={},{}&units=metrics&appid={}"         
         city, country_code, api_key
     );
 
-    let response = reqwest::blocking::get(&url)?; // "?" for handling error 
+    let response = reqwest::blocking::get(&url)?;                                    // "?" for handling error , "reqwest" is asynchronous library for non blocking i/o operations
+    let response_json  : WeatherResponse = Response.json::<WeatherResponse>()?;
+    Ok(response_json);    
 }
+
+// function to display weather info, and extract weather info from the response
+
+fn display_weather_info(response: &WeatherResponse){
+    // Extract
+    let description : &string = &response.weather[0].description;
+    let temperature : f64 = response.main.temperature;
+    let humidity : f64 = response.main.humidity;
+    let pressure : f64 = response.main.pressure;
+    let speed : f64 = response.wind.speed;
+
+    // formatting weahter info into a string
+
+    let weather_text: String = format!(
+        "weather in {}: {} {}
+        > temperature : {:.1}°C,
+        > humidity : {:.1}%,
+        > pressure : {:.1}hPa,
+        > speed: {:.1}m/s",
+        response.name,
+        description,
+
+        // function to get temperature emoji
+        get_temp_emoji(temperature),
+        temperature,
+        humidity,
+        pressure,
+        speed
+);
+
+// Coloring the weather text based on weather conditions
+let weather_text_colored: coloredString = match description.as_str(){
+    "clear sky" => weather_text.bright_yellow(),
+    "few clouds" | "scattered clouds" | "broken clouds" =>
+    weather_text.bright_blue(),
+    "overcast clouds" | "mist" | "haze" | "smoke" | "sand" |
+    "dust" | "fog" | "squalls" => weather_text.dimmed(),
+    "shower rain" | "rain" | "thunderstorm" | "snow" => weather_text.bright_cyan(),
+    _ => weather_text.normal(),
+}
+
+// Function to get emoji based on the temperature
+
+fn get_temp_emoji(temperature: f64){
+    if temperature <= 0.0{
+        "❄️ "
+    }
+    else if temperature > 0.0 && temperature <= 10.0{
+        "🌪️"
+    }
+     else if temperature > 10.0 && temperature <= 20.0{
+        "🌩️"
+    }
+     else if temperature > 20.0 && temperature <= 30.0{
+        "⛅"
+    }
+    else {
+        "🔥"
+    }
+}
+
+fn main(){
+    println!("{}" "welcome to weather info".bright_yellow());
+    loop{
+        
+    }
+}
+
+}
+
+
+
